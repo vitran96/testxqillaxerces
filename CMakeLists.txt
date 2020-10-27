@@ -13,5 +13,5 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 find_package(XercesC 3.1 REQUIRED)
 
 # Include sub-projects.
-add_subdirectory ("TestXquilla")
+add_subdirectory ("TestXqilla")
 
