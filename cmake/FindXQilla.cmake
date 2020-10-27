@@ -16,3 +16,10 @@ set(XQILLA_LIBRARIES ${XQILLA_LIBRARY})
 
 mark_as_advanced(XQILLA_INCLUDE_DIR XQILLA_LIBRARY)
 
+if (NOT TARGET XQilla)
+    add_library(XQilla UNKNOWN IMPORTED)
+    if (XQILLA_INCLUDE_DIR)
+        set_target_properties(XQilla PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${XQILLA_INCLUDE_DIR}")
+    endif()
+endif()
