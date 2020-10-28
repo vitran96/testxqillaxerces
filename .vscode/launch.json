@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build-debug/bin/TestXqilla",
-            "args": [""],
+            "args": ["//EcuVariant[@isBV=\\'true\\']"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build-debug/bin/",
             "environment": [],
@@ -22,7 +22,8 @@
                     "ignoreFailures": true
                 }
             ],
-            "miDebuggerPath": "/usr/bin/gdb"
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "BuildDebug"
         },
         {
             "name": "RunRelease",

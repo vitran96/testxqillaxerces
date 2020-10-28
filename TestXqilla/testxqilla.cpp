@@ -68,7 +68,7 @@ bool DOMPrintErrorHandler::handleError(const DOMError& domError)
 }
 
 DOMDocument* ParseFile(const std::string& file);
-void PrintDOMElements(std::list<DOMElement*> elementsList);
+void PrintDOMElements(const std::list<DOMElement*>& elementsList);
 
 void PrintDOMNode(DOMNode* domNode);
 
@@ -179,56 +179,65 @@ int mainXpathTest(const int argc, const char* argv[])
         return 1;
     }
 
+    int returnCode = 0;
+
     std::string xmlFile(TEST_FILE);
     std::string xpathExpression(argv[1]);
 
     std::cout << "\nXPath: " << xpathExpression << std::endl;
 
+    DOMDocument* xercesDoc;
+
     try
     {
         long long startTime(GetTimestamp());
 
-        auto xercesDoc = XQillaParseFile(xmlFile);
+        xercesDoc = XQillaParseFile(xmlFile);
+
+        std::cout << "Finish parsing" << std::endl;
 
         long long afterParsingAFile(GetTimestamp());
 
-        // std::cout << "Should be holding Document here" << std::endl;
-        auto xercesElementsList = ::GetElementByXpath(xercesDoc, xpathExpression);
+        std::list<DOMElement*> xercesElementsList = ::GetElementByXpath(xercesDoc, xpathExpression);
 
         long long afterAnXPathExpression(GetTimestamp());
 
-        PrintDOMElements(xercesElementsList);
+        std::cout << "Finish XPath resolving" << std::endl;
 
-        // xercesElementsList.clear();
-        if (xercesDoc == nullptr)
-            std::cout << "Fail to load doc!" << std::endl;
-        else
-        {
-            std::cout << "Will delete document" << std::endl;
-            // PrintDOMNode(xercesDoc);
-            xercesDoc->release();
-        }
+        ::PrintDOMElements(xercesElementsList);
+
+        std::cout << "Finish print xpath results" << std::endl;
+
+        xercesElementsList.clear();
 
         std::cout << "Parsing time: " << (afterParsingAFile - startTime) << std::endl;
         std::cout << "XPath time: " << (afterAnXPathExpression - afterParsingAFile) << std::endl;
-
-        return 0;
     }
     catch (const std::exception& e)
     {
         std::cout << "\n" << e.what() << std::endl;
-        return 1;
+        returnCode = 1;
     }
     catch (const DOMException& e)
     {
         std::cerr << "DOMException: " << UTF8(e.getMessage()) << std::endl;
-        return 1;
+        returnCode = 1;
     }
     catch (...)
     {
         std::cerr << "UNKNOWN error occurred!!" << std:: endl;
-        return 1;
+        returnCode = 1;
     }
+
+    if (xercesDoc == nullptr)
+        std::cout << "Fail to load doc!" << std::endl;
+    else
+    {
+        std::cout << "Will delete document" << std::endl;
+        xercesDoc->release();
+    }
+
+    return returnCode;
 }
 
 DOMDocument* ParseFile(const std::string& file)
@@ -255,20 +264,13 @@ DOMDocument* XQillaParseFile(const std::string& file)
     // auto document = parser->parse(input);
     auto document = parser->parseURI(file.c_str());
 
-    // std::cout << "Finish parsing" << std::endl;
-
     input->release();
-
-    // std::cout << "Delete " << "Input" << " Done" << std::endl;
-
     parser->release();
-
-    // std::cout << "Delete " << "parser" << " Done" << std::endl;
 
     return document;
 }
 
-void PrintDOMElements(std::list<DOMElement*> elementsList)
+void PrintDOMElements(const std::list<DOMElement*>& elementsList)
 {
     std::cout << "\nFound " << elementsList.size() << " elements" << std::endl;
 
@@ -278,7 +280,7 @@ void PrintDOMElements(std::list<DOMElement*> elementsList)
 
     // DOMLSOutput-----------------------------------------
     DOMLSOutput* theOutPut = domImpl->createLSOutput();
-    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    theOutPut->setEncoding(X("UTF-8"));
     //-----------------------------------------------------
 
     // DOMLSSerializer-------------------------------------
@@ -310,14 +312,14 @@ void PrintDOMElements(std::list<DOMElement*> elementsList)
     theOutPut->setByteStream(&consoleOutputFormatTarget);
 
     // Print-----------------------------------------------
-    for (auto element : elementsList)
-        theSerializer->write(element, theOutPut);
+    for (auto it = elementsList.begin(); it != elementsList.end(); it++)
+        theSerializer->write(*it, theOutPut);
     //-----------------------------------------------------
 
     // Release memory--------------------------------------
+    consoleOutputFormatTarget.flush();
     theOutPut->release();
     theSerializer->release();
-    consoleOutputFormatTarget.flush();
     //-----------------------------------------------------
 
     std::cout << "\n";
@@ -394,12 +396,12 @@ std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::strin
             )
         );
 
-        int nLength = result->getSnapshotLength();
+        size_t nLength = result->getSnapshotLength();
 
         if (nLength == 0)
             throw std::runtime_error("No result");
 
-        for (int i = 0; i < nLength; i++)
+        for (size_t i = 0; i < nLength; i++)
         {
             result->snapshotItem(i);
 
@@ -407,12 +409,13 @@ std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::strin
 
             if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
             {
-                tempNode->getNodeValue();
                 throw std::runtime_error("Result contain non-element node");
             }
 
             resultList.push_back(dynamic_cast<DOMElement*>(tempNode));
         }
+
+        return resultList;
     }
     catch (const DOMXPathException& ex)
     {
