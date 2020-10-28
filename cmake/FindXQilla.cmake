@@ -22,4 +22,9 @@ if (NOT TARGET XQilla)
         set_target_properties(XQilla PROPERTIES
             INTERFACE_INCLUDE_DIRECTORIES "${XQILLA_INCLUDE_DIR}")
     endif()
+    if (EXISTS "${XQILLA_LIBRARY}")
+        set_target_properties(XQilla PROPERTIES
+            IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+            IMPORTED_LOCATION "${XQILLA_LIBRARY}")
+    endif()
 endif()
