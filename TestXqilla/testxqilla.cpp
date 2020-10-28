@@ -78,7 +78,7 @@ DOMImplementation* GetDOMImplementation();
 
 int mainXpathTest(const int argc, const char* argv[]);
 
-std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const char* xpath);
+std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::string& xpath);
 
 void Initialize();
 void Terminate();
@@ -193,10 +193,11 @@ int mainXpathTest(const int argc, const char* argv[])
         long long afterParsingAFile(GetTimestamp());
 
         // std::cout << "Should be holding Document here" << std::endl;
+        auto xercesElementsList = ::GetElementByXpath(xercesDoc, xpathExpression);
 
-        // long long afterAnXPathExpression(GetTimestamp());
+        long long afterAnXPathExpression(GetTimestamp());
 
-        //PrintDOMElement(xercesElementsList);
+        PrintDOMElements(xercesElementsList);
 
         // xercesElementsList.clear();
         if (xercesDoc == nullptr)
@@ -209,7 +210,7 @@ int mainXpathTest(const int argc, const char* argv[])
         }
 
         std::cout << "Parsing time: " << (afterParsingAFile - startTime) << std::endl;
-        // std::cout << "XPath time: " << (afterAnXPathExpression - afterParsingAFile) << std::endl;
+        std::cout << "XPath time: " << (afterAnXPathExpression - afterParsingAFile) << std::endl;
 
         return 0;
     }
@@ -374,7 +375,51 @@ void PrintDOMNode(DOMNode* node)
     std::cout << "\n";
 }
 
-std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const char* xpath)
+std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::string& xpath)
 {
-    return std::list<DOMElement*>();
+    try
+    {
+        std::list<DOMElement*> resultList;
+
+        // TODO: release manually
+
+        AutoRelease<DOMXPathNSResolver> resolver(document->createNSResolver(document->getDocumentElement()));
+        AutoRelease<DOMXPathExpression> parsedExpression(document->createExpression(X(xpath.c_str()), resolver));
+
+        AutoRelease<DOMXPathResult> result(
+            parsedExpression->evaluate(
+                document->getDocumentElement(),
+                DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
+                nullptr
+            )
+        );
+
+        int nLength = result->getSnapshotLength();
+
+        if (nLength == 0)
+            throw std::runtime_error("No result");
+
+        for (int i = 0; i < nLength; i++)
+        {
+            result->snapshotItem(i);
+
+            auto tempNode = result->getNodeValue();
+
+            if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
+            {
+                tempNode->getNodeValue();
+                throw std::runtime_error("Result contain non-element node");
+            }
+
+            resultList.push_back(dynamic_cast<DOMElement*>(tempNode));
+        }
+    }
+    catch (const DOMXPathException& ex)
+    {
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
+    catch (const DOMException& ex)
+    {
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
 }
