@@ -81,6 +81,8 @@ int mainXpathTest(const int argc, const char* argv[]);
 std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::string& xpath);
 
 DOMElement* DetachRootElement(DOMDocument* document);
+DOMDocumentFragment* DetachRootAndAddToDocumentFragment(DOMDocument* document);
+
 std::list<DOMElement*> GetElementByXpathFromDetachedElement(DOMDocument* document, DOMElement* element, const std::string& xpath);
 std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* document, DOMDocumentFragment* docFragment, const std::string& xpath);
 
@@ -98,6 +100,8 @@ const DOMImplName CURRENT_IMPL_NAME(DOMImplName::XQILLA);
 
 const XMLCh* DEFAULT_FEATURES = u"";
 const XMLCh* XPATH_FEATURES = u"XPath2";
+
+const bool PRINT_RESULT = false;
 
 DOMImplementation* GetDOMImplementation()
 {
@@ -145,11 +149,13 @@ void Initialize()
         {
             std::cout << "Initialize XERCESC" << std::endl;
             XMLPlatformUtils::Initialize();
+            break;
         }
         case DOMImplName::XQILLA:
         {
             std::cout << "Initialize XQILLA" << std::endl;
             XQillaPlatformUtils::initialize();
+            break;
         }
     }
 }
@@ -162,11 +168,13 @@ void Terminate()
         {
             std::cout << "Terminate XERCESC" << std::endl;
             XMLPlatformUtils::Terminate();
+            break;
         }
         case DOMImplName::XQILLA:
         {
             std::cout << "Terminate XQILLA" << std::endl;
             XQillaPlatformUtils::terminate();
+            break;
         }
     }
 }
@@ -205,13 +213,25 @@ int mainXpathTest(const int argc, const char* argv[])
 
         std::list<DOMElement*> xercesElementsList = ::GetElementByXpath(xercesDoc, xpathExpression);
 
+        // DOMElement* root = ::DetachRootElement(xercesDoc);
+        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
+
+        // DOMElement* root = ::DetachRootElement(xercesDoc);
+        // DOMDocumentFragment* docFragment = xercesDoc->createDocumentFragment();
+        // docFragment->appendChild(root);
+        // DOMDocumentFragment* docFragment = ::DetachRootAndAddToDocumentFragment(xercesDoc);
+        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDocumentFragment(xercesDoc, docFragment, xpathExpression);
+        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
+
         long long afterAnXPathExpression(GetTimestamp());
 
         std::cout << "Finish XPath resolving" << std::endl;
 
-        ::PrintDOMElements(xercesElementsList);
-
-        std::cout << "Finish print xpath results" << std::endl;
+        if (PRINT_RESULT)
+        {
+            ::PrintDOMElements(xercesElementsList);
+            std::cout << "Finish print xpath results" << std::endl;
+        }
 
         xercesElementsList.clear();
 
@@ -220,7 +240,7 @@ int mainXpathTest(const int argc, const char* argv[])
     }
     catch (const std::exception& e)
     {
-        std::cout << "\n" << e.what() << std::endl;
+        std::cout << "\n" << "Error: " << e.what() << std::endl;
         returnCode = 1;
     }
     catch (const DOMException& e)
@@ -431,25 +451,138 @@ std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::strin
     }
     catch (const DOMXPathException& ex)
     {
+        std::cout << "DOMXPathException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
     catch (const DOMException& ex)
     {
+        std::cout << "DOMException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
 }
 
 DOMElement* DetachRootElement(DOMDocument* document)
 {
-    return nullptr;
+    DOMElement* rootElement = document->getDocumentElement();
+    document->removeChild(rootElement);
+
+    if (rootElement->getParentNode() != nullptr)
+        std::cout << "Fail to detach root element out of document" << std::endl;
+    else
+        std::cout << "Success on detach root element" << std::endl;
+
+    return rootElement;
+}
+
+DOMDocumentFragment* DetachRootAndAddToDocumentFragment(DOMDocument* document)
+{
+    DOMElement* root = DetachRootElement(document);
+    DOMDocumentFragment* documentFragment = document->createDocumentFragment();
+    documentFragment->appendChild(root);
+
+    return documentFragment;
 }
 
 std::list<DOMElement*> GetElementByXpathFromDetachedElement(DOMDocument* document, DOMElement* element, const std::string& xpath)
 {
-    return std::list<DOMElement*>();
+    try
+    {
+        std::list<DOMElement*> resultList;
+
+        // TODO: release manually
+
+        AutoRelease<DOMXPathNSResolver> resolver(document->createNSResolver(element));
+        AutoRelease<DOMXPathExpression> parsedExpression(document->createExpression(X(xpath.c_str()), resolver));
+
+        AutoRelease<DOMXPathResult> result(
+            parsedExpression->evaluate(
+                element,
+                DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
+                nullptr
+            )
+        );
+
+        size_t nLength = result->getSnapshotLength();
+
+        if (nLength == 0)
+            throw std::runtime_error("No result");
+
+        for (size_t i = 0; i < nLength; i++)
+        {
+            result->snapshotItem(i);
+
+            auto tempNode = result->getNodeValue();
+
+            if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
+            {
+                throw std::runtime_error("Result contain non-element node");
+            }
+
+            resultList.push_back(dynamic_cast<DOMElement*>(tempNode));
+        }
+
+        return resultList;
+    }
+    catch (const DOMXPathException& ex)
+    {
+        std::cout << "DOMXPathException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
+    catch (const DOMException& ex)
+    {
+        std::cout << "DOMException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
 }
 
 std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* document, DOMDocumentFragment* docFragment, const std::string& xpath)
 {
-    return std::list<DOMElement*>();
+    try
+    {
+        std::list<DOMElement*> resultList;
+
+        // TODO: release manually
+
+        AutoRelease<DOMXPathNSResolver> resolver(document->createNSResolver(docFragment));
+        AutoRelease<DOMXPathExpression> parsedExpression(document->createExpression(X(xpath.c_str()), resolver));
+
+        AutoRelease<DOMXPathResult> result(
+            parsedExpression->evaluate(
+                docFragment,
+                DOMXPathResult::ORDERED_NODE_SNAPSHOT_TYPE,
+                nullptr
+            )
+        );
+
+        size_t nLength = result->getSnapshotLength();
+
+        if (nLength == 0)
+            throw std::runtime_error("No result");
+
+        for (size_t i = 0; i < nLength; i++)
+        {
+            result->snapshotItem(i);
+
+            auto tempNode = result->getNodeValue();
+
+            if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
+            {
+                throw std::runtime_error("Result contain non-element node");
+            }
+
+            resultList.push_back(dynamic_cast<DOMElement*>(tempNode));
+        }
+
+        return resultList;
+    }
+    catch (const DOMXPathException& ex)
+    {
+        std::cout << "DOMXPathException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
+    catch (const DOMException& ex)
+    {
+        std::cout << "DOMException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
 }
