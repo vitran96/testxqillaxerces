@@ -39,33 +39,26 @@ public:
     ~DOMPrintErrorHandler() {};
 
     /** @name The error handler interface */
-    bool handleError(const DOMError& domError) override;
+    bool handleError(const DOMError& domError) override
+    {
+        // Display whatever error message passed from the serializer
+        if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING)
+            std::cerr << "\nWarning Message: ";
+        else if (domError.getSeverity() == DOMError::DOM_SEVERITY_ERROR)
+            std::cerr << "\nError Message: ";
+        else
+            std::cerr << "\nFatal Message: ";
+
+        char* msg = XMLString::transcode(domError.getMessage());
+        std::cerr << msg << std::endl;
+        XMLString::release(&msg);
+
+        // Instructs the serializer to continue serialization if possible.
+        return true;
+    }
+
     void resetErrors() {};
-
-private:
-    /* Unimplemented constructors and operators */
-    //DOMPrintErrorHandler(const DOMErrorHandler &);
-    //void operator=(const DOMErrorHandler &);
-
 };
-
-bool DOMPrintErrorHandler::handleError(const DOMError& domError)
-{
-    // Display whatever error message passed from the serializer
-    if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING)
-        std::cerr << "\nWarning Message: ";
-    else if (domError.getSeverity() == DOMError::DOM_SEVERITY_ERROR)
-        std::cerr << "\nError Message: ";
-    else
-        std::cerr << "\nFatal Message: ";
-
-    char* msg = XMLString::transcode(domError.getMessage());
-    std::cerr << msg << std::endl;
-    XMLString::release(&msg);
-
-    // Instructs the serializer to continue serialization if possible.
-    return true;
-}
 
 DOMDocument* ParseFile(const std::string& file);
 void PrintDOMElements(const std::list<DOMElement*>& elementsList);
@@ -219,9 +212,10 @@ int mainXpathTest(const int argc, const char* argv[])
         // DOMElement* root = ::DetachRootElement(xercesDoc);
         // DOMDocumentFragment* docFragment = xercesDoc->createDocumentFragment();
         // docFragment->appendChild(root);
+        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
+
         // DOMDocumentFragment* docFragment = ::DetachRootAndAddToDocumentFragment(xercesDoc);
         // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDocumentFragment(xercesDoc, docFragment, xpathExpression);
-        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
 
         long long afterAnXPathExpression(GetTimestamp());
 
