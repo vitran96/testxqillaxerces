@@ -4,8 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${env:XERCES_ROOT/include}/**",
-                "${env:XQILLA_ROOT/include}/**"
+                "${env:XERCES_ROOT}/include/**",
+                "${env:XQILLA_ROOT}/include/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

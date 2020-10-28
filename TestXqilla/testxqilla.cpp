@@ -68,13 +68,17 @@ bool DOMPrintErrorHandler::handleError(const DOMError& domError)
 }
 
 DOMDocument* ParseFile(const std::string& file);
-void PrintDOMElement(std::list<DOMElement*> elementsList);
+void PrintDOMElements(std::list<DOMElement*> elementsList);
+
+void PrintDOMNode(DOMNode* domNode);
 
 DOMDocument* XQillaParseFile(const std::string& file);
 
 DOMImplementation* GetDOMImplementation();
 
 int mainXpathTest(const int argc, const char* argv[]);
+
+std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const char* xpath);
 
 void Initialize();
 void Terminate();
@@ -188,12 +192,21 @@ int mainXpathTest(const int argc, const char* argv[])
 
         long long afterParsingAFile(GetTimestamp());
 
+        // std::cout << "Should be holding Document here" << std::endl;
+
         // long long afterAnXPathExpression(GetTimestamp());
 
         //PrintDOMElement(xercesElementsList);
 
         // xercesElementsList.clear();
-        xercesDoc->release();
+        if (xercesDoc == nullptr)
+            std::cout << "Fail to load doc!" << std::endl;
+        else
+        {
+            std::cout << "Will delete document" << std::endl;
+            // PrintDOMNode(xercesDoc);
+            xercesDoc->release();
+        }
 
         std::cout << "Parsing time: " << (afterParsingAFile - startTime) << std::endl;
         // std::cout << "XPath time: " << (afterAnXPathExpression - afterParsingAFile) << std::endl;
@@ -229,15 +242,32 @@ DOMDocument* ParseFile(const std::string& file)
 
 DOMDocument* XQillaParseFile(const std::string& file)
 {
-    std::share_ptr<DOMLSParser> parser(::GetDOMImplementation()->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0));
+    DOMImplementation* impl = ::GetDOMImplementation();
+    DOMLSParser* parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
     parser->getDomConfig()->setParameter(XMLUni::fgDOMNamespaces, true);
     parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, false);
+    parser->getDomConfig()->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
 
-    std::shared_ptr<DOMLSInput> input(impl->createLSInput());
-    return nullptr;
+    DOMLSInput* input = impl->createLSInput();
+    input->setStringData(X(file.c_str()));
+
+    // auto document = parser->parse(input);
+    auto document = parser->parseURI(file.c_str());
+
+    // std::cout << "Finish parsing" << std::endl;
+
+    input->release();
+
+    // std::cout << "Delete " << "Input" << " Done" << std::endl;
+
+    parser->release();
+
+    // std::cout << "Delete " << "parser" << " Done" << std::endl;
+
+    return document;
 }
 
-void PrintDOMElement(std::list<DOMElement*> elementsList)
+void PrintDOMElements(std::list<DOMElement*> elementsList)
 {
     std::cout << "\nFound " << elementsList.size() << " elements" << std::endl;
 
@@ -290,4 +320,61 @@ void PrintDOMElement(std::list<DOMElement*> elementsList)
     //-----------------------------------------------------
 
     std::cout << "\n";
+}
+
+void PrintDOMNode(DOMNode* node)
+{
+    // DOMImpl
+    DOMImplementation* domImpl = ::GetDOMImplementation();
+    //-----------------------------------------------------
+
+    // DOMLSOutput-----------------------------------------
+    DOMLSOutput* theOutPut = domImpl->createLSOutput();
+    theOutPut->setEncoding(XMLString::transcode("UTF-8"));
+    //-----------------------------------------------------
+
+    // DOMLSSerializer-------------------------------------
+    DOMLSSerializer* theSerializer = domImpl->createLSSerializer();
+    //-----------------------------------------------------
+
+    // Error Handler---------------------------------------
+    DOMPrintErrorHandler myErrorHandler;
+    //-----------------------------------------------------
+
+    // Configure-------------------------------------------
+    DOMConfiguration* serializerConfig = theSerializer->getDomConfig();
+    //-----------------------------------------------------
+
+    // Set Error Handler-----------------------------------
+    serializerConfig->setParameter(XMLUni::fgDOMErrorHandler, &myErrorHandler);
+    //-----------------------------------------------------
+
+    // Set Pretty Print------------------------------------
+    if (serializerConfig->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true))
+        serializerConfig->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+    //-----------------------------------------------------
+
+    // Format Target---------------------------------------
+    StdOutFormatTarget consoleOutputFormatTarget;
+    //-----------------------------------------------------
+
+    //-----------------------------------------------------
+    theOutPut->setByteStream(&consoleOutputFormatTarget);
+
+    // Print-----------------------------------------------
+    theSerializer->write(node, theOutPut);
+    //-----------------------------------------------------
+
+    // Release memory--------------------------------------
+    theOutPut->release();
+    theSerializer->release();
+    consoleOutputFormatTarget.flush();
+    //-----------------------------------------------------
+
+    std::cout << "\n";
+}
+
+std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const char* xpath)
+{
+    return std::list<DOMElement*>();
 }
