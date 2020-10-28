@@ -184,7 +184,7 @@ int mainXpathTest(const int argc, const char* argv[])
     {
         long long startTime(GetTimestamp());
 
-        auto xercesDoc = ParseFile(xmlFile);
+        auto xercesDoc = XQillaParseFile(xmlFile);
 
         long long afterParsingAFile(GetTimestamp());
 
@@ -229,6 +229,11 @@ DOMDocument* ParseFile(const std::string& file)
 
 DOMDocument* XQillaParseFile(const std::string& file)
 {
+    std::share_ptr<DOMLSParser> parser(::GetDOMImplementation()->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0));
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMNamespaces, true);
+    parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, false);
+
+    std::shared_ptr<DOMLSInput> input(impl->createLSInput());
     return nullptr;
 }
 
