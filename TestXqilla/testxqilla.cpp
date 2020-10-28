@@ -80,6 +80,11 @@ int mainXpathTest(const int argc, const char* argv[]);
 
 std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::string& xpath);
 
+DOMElement* DetachRootElement(DOMDocument* document);
+std::list<DOMElement*> GetElementByXpathFromDetachedElement(DOMDocument* document, DOMElement* element, const std::string& xpath);
+std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* document, DOMDocumentFragment* docFragment, const std::string& xpath);
+
+
 void Initialize();
 void Terminate();
 
@@ -168,8 +173,8 @@ void Terminate()
 
 int mainXpathTest(const int argc, const char* argv[])
 {
-    std::cout << "This is a program to test Xalan 1.12.0 XPath 1.0 support.\n"
-        << "'sample.xml' next to TestXercesXpathFeatures.exe will be used for testing.\n"
+    std::cout << "This is a program to test XQilla 2.3.4 XPath 2.0 support.\n"
+        << "'sample.xml' next to TestXqilla will be used for testing.\n"
         << "If you want to use your XML file, rename and replace sample.xml.\n"
         << "This program only take 1 argument as XPath. Pass in more than 1 the program will only use the 1st one.\n";
 
@@ -192,7 +197,7 @@ int mainXpathTest(const int argc, const char* argv[])
     {
         long long startTime(GetTimestamp());
 
-        xercesDoc = XQillaParseFile(xmlFile);
+        xercesDoc = ::XQillaParseFile(xmlFile);
 
         std::cout << "Finish parsing" << std::endl;
 
@@ -258,11 +263,18 @@ DOMDocument* XQillaParseFile(const std::string& file)
     parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, false);
     parser->getDomConfig()->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
 
-    DOMLSInput* input = impl->createLSInput();
-    input->setStringData(X(file.c_str()));
+    std::cout << "Finish set up parser" << std::endl;
 
-    // auto document = parser->parse(input);
-    auto document = parser->parseURI(file.c_str());
+    DOMLSInput* input = impl->createLSInput();
+    input->setSystemId(X(file.c_str()));
+    input->setBaseURI(u"./");
+
+    std::cout << "Finish set up input source" << std::endl;
+
+    auto document = parser->parse(input);
+    // auto document = parser->parseURI(file.c_str());
+
+    std::cout << "Finish parsing" << std::endl;
 
     input->release();
     parser->release();
@@ -425,4 +437,19 @@ std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::strin
     {
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
+}
+
+DOMElement* DetachRootElement(DOMDocument* document)
+{
+    return nullptr;
+}
+
+std::list<DOMElement*> GetElementByXpathFromDetachedElement(DOMDocument* document, DOMElement* element, const std::string& xpath)
+{
+    return std::list<DOMElement*>();
+}
+
+std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* document, DOMDocumentFragment* docFragment, const std::string& xpath)
+{
+    return std::list<DOMElement*>();
 }
