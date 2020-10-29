@@ -98,6 +98,13 @@ const XMLCh* XPATH_FEATURES = u"XPath2";
 
 const bool PRINT_RESULT = false;
 
+const short XPATH_CASE_1(1);
+const short XPATH_CASE_2(2);
+const short XPATH_CASE_3(3);
+const short XPATH_CASE_4(4);
+
+const short TEST_XPATH_CASE = XPATH_CASE_1;
+
 DOMImplementation* GetDOMImplementation()
 {
     switch (CURRENT_IMPL_NAME)
@@ -198,6 +205,8 @@ int mainXpathTest(const int argc, const char* argv[])
 
     try
     {
+        std::list<DOMElement*> xercesElementsList;
+
         long long startTime(GetTimestamp());
 
         xercesDoc = ::XQillaParseFile(xmlFile);
@@ -206,18 +215,25 @@ int mainXpathTest(const int argc, const char* argv[])
 
         long long afterParsingAFile(GetTimestamp());
 
-        std::list<DOMElement*> xercesElementsList = ::GetElementByXpath(xercesDoc, xpathExpression);
-
-        // DOMElement* root = ::DetachRootElement(xercesDoc);
-        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
-
-        // DOMElement* root = ::DetachRootElement(xercesDoc);
-        // DOMDocumentFragment* docFragment = xercesDoc->createDocumentFragment();
-        // docFragment->appendChild(root);
-        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
-
-        // DOMDocumentFragment* docFragment = ::DetachRootAndAddToDocumentFragment(xercesDoc);
-        // std::list<DOMElement*> xercesElementsList = ::GetElementByXpathFromDocumentFragment(xercesDoc, docFragment, xpathExpression);
+        if (TEST_XPATH_CASE == XPATH_CASE_1)
+            xercesElementsList = ::GetElementByXpath(xercesDoc, xpathExpression);
+        else if (TEST_XPATH_CASE == XPATH_CASE_2)
+        {
+            DOMElement* root = ::DetachRootElement(xercesDoc);
+            xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
+        }
+        else if (TEST_XPATH_CASE == XPATH_CASE_3)
+        {
+            DOMElement* root = ::DetachRootElement(xercesDoc);
+            DOMDocumentFragment* docFragment = xercesDoc->createDocumentFragment();
+            docFragment->appendChild(root);
+            xercesElementsList = ::GetElementByXpathFromDetachedElement(xercesDoc, root, xpathExpression);
+        }
+        else if (TEST_XPATH_CASE == XPATH_CASE_4)
+        {
+            DOMDocumentFragment* docFragment = ::DetachRootAndAddToDocumentFragment(xercesDoc);
+            xercesElementsList = ::GetElementByXpathFromDocumentFragment(xercesDoc, docFragment, xpathExpression);
+        }
 
         long long afterAnXPathExpression(GetTimestamp());
 
