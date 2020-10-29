@@ -220,6 +220,8 @@ int mainXpathTest(const int argc, const char* argv[])
         long long afterAnXPathExpression(GetTimestamp());
 
         std::cout << "Finish XPath resolving" << std::endl;
+        std::cout << "Found " << xercesElementsList.size() << " elements" << std::endl;
+
 
         if (PRINT_RESULT)
         {
@@ -298,8 +300,6 @@ DOMDocument* XQillaParseFile(const std::string& file)
 
 void PrintDOMElements(const std::list<DOMElement*>& elementsList)
 {
-    std::cout << "\nFound " << elementsList.size() << " elements" << std::endl;
-
     // DOMImpl
     DOMImplementation* domImpl = ::GetDOMImplementation();
     //-----------------------------------------------------

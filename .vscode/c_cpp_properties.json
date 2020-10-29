@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "Linux-x86-64",
             "includePath": [
                 "${workspaceFolder}/**",
                 "${env:XERCES_ROOT}/include/**",

@@ -5,11 +5,53 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "RunDebug",
+            "name": "Test 1",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build-debug/bin/TestXqilla",
             "args": ["//EcuVariant[@isBV=\\'true\\']"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-debug/bin/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "BuildDebug"
+        },
+        {
+            "name": "Test 2",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-debug/bin/TestXqilla",
+            "args": ["./FapList"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build-debug/bin/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "preLaunchTask": "BuildDebug"
+        },
+        {
+            "name": "Test 3",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-debug/bin/TestXqilla",
+            "args": ["/FapList"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/build-debug/bin/",
             "environment": [],
@@ -35,7 +77,7 @@
             "cwd": "${workspaceFolder}/build/bin/",
             "environment": [],
             "externalConsole": false,
-            "noDebug": true
+            "preLaunchTask": "BuildRelease"
         }
     ]
 }
