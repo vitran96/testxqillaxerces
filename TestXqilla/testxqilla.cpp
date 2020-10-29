@@ -443,14 +443,19 @@ std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::strin
 
         return resultList;
     }
+    catch (const XQillaException& ex)
+    {
+        std::cout << "\n" << "XQillaException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
     catch (const DOMXPathException& ex)
     {
-        std::cout << "DOMXPathException" << std::endl;
+        std::cout << "\n" << "DOMXPathException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
     catch (const DOMException& ex)
     {
-        std::cout << "DOMException" << std::endl;
+        std::cout << "\n" << "DOMException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
 }
@@ -517,14 +522,19 @@ std::list<DOMElement*> GetElementByXpathFromDetachedElement(DOMDocument* documen
 
         return resultList;
     }
+    catch (const XQillaException& ex)
+    {
+        std::cout << "\n" << "XQillaException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
     catch (const DOMXPathException& ex)
     {
-        std::cout << "DOMXPathException" << std::endl;
+        std::cout << "\n" << "DOMXPathException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
     catch (const DOMException& ex)
     {
-        std::cout << "DOMException" << std::endl;
+        std::cout << "\n" << "DOMException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
 }
@@ -569,14 +579,19 @@ std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* docume
 
         return resultList;
     }
+    catch (const XQillaException& ex)
+    {
+        std::cout << "\n" << "XQillaException" << std::endl;
+        throw std::runtime_error(UTF8(ex.getMessage()));
+    }
     catch (const DOMXPathException& ex)
     {
-        std::cout << "DOMXPathException" << std::endl;
+        std::cout << "\n" << "DOMXPathException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
     catch (const DOMException& ex)
     {
-        std::cout << "DOMException" << std::endl;
+        std::cout << "\n" << "DOMException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
     }
 }
