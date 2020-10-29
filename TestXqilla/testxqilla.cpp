@@ -453,6 +453,7 @@ std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::strin
 
             if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
             {
+                PrintNodeType(tempNode->getNodeType());
                 throw std::runtime_error("Result contain non-element node");
             }
 
@@ -532,6 +533,7 @@ std::list<DOMElement*> GetElementByXpathFromDetachedElement(DOMDocument* documen
 
             if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
             {
+                PrintNodeType(tempNode->getNodeType());
                 throw std::runtime_error("Result contain non-element node");
             }
 
