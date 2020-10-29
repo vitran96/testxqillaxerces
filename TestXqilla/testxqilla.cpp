@@ -69,6 +69,8 @@ DOMDocument* XQillaParseFile(const std::string& file);
 
 DOMImplementation* GetDOMImplementation();
 
+void PrintNodeType(const DOMNode::NodeType& nodeType);
+
 int mainXpathTest(const int argc, const char* argv[]);
 
 std::list<DOMElement*> GetElementByXpath(DOMDocument* document, const std::string& xpath);
@@ -571,6 +573,7 @@ std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* docume
 
             if (tempNode->getNodeType() != DOMNode::ELEMENT_NODE)
             {
+                PrintNodeType(tempNode->getNodeType());
                 throw std::runtime_error("Result contain non-element node");
             }
 
@@ -593,5 +596,48 @@ std::list<DOMElement*> GetElementByXpathFromDocumentFragment(DOMDocument* docume
     {
         std::cout << "\n" << "DOMException" << std::endl;
         throw std::runtime_error(UTF8(ex.getMessage()));
+    }
+}
+
+void PrintNodeType(const DOMNode::NodeType& nodeType)
+{
+    switch (nodeType)
+    {
+        case DOMNode::ATTRIBUTE_NODE:
+            std::cout << "ATTRIBUTE_NODE" << std::endl;
+            break;
+        case DOMNode::CDATA_SECTION_NODE:
+            std::cout << "CDATA_SECTION_NODE" << std::endl;
+            break;
+        case DOMNode::COMMENT_NODE:
+            std::cout << "COMMENT_NODE" << std::endl;
+            break;
+        case DOMNode::DOCUMENT_FRAGMENT_NODE:
+            std::cout << "DOCUMENT_FRAGMENT_NODE" << std::endl;
+            break;
+        case DOMNode::DOCUMENT_NODE:
+            std::cout << "DOCUMENT_NODE" << std::endl;
+            break;
+        case DOMNode::DOCUMENT_TYPE_NODE:
+            std::cout << "DOCUMENT_TYPE_NODE" << std::endl;
+            break;
+        case DOMNode::ELEMENT_NODE:
+            std::cout << "ELEMENT_NODE" << std::endl;
+            break;
+        case DOMNode::ENTITY_NODE:
+            std::cout << "ENTITY_NODE" << std::endl;
+            break;
+        case DOMNode::ENTITY_REFERENCE_NODE:
+            std::cout << "ENTITY_REFERENCE_NODE" << std::endl;
+            break;
+        case DOMNode::NOTATION_NODE:
+            std::cout << "NOTATION_NODE" << std::endl;
+            break;
+        case DOMNode::PROCESSING_INSTRUCTION_NODE:
+            std::cout << "PROCESSING_INSTRUCTION_NODE" << std::endl;
+            break;
+        case DOMNode::TEXT_NODE:
+            std::cout << "TEXT_NODE" << std::endl;
+            break;
     }
 }
