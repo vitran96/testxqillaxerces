@@ -3,28 +3,39 @@
 # originally taken from
 #  https://github.com/rug-compling/alpinocorpus/blob/master/cmake/FindXQilla.cmake
 
-find_path(XQILLA_INCLUDE_DIR NAMES xqilla/xqilla-simple.hpp)
+find_path(XQilla_INCLUDE_DIR
+    NAMES xqilla/xqilla-simple.hpp
+    DOC "XQilla include directory")
+mark_as_advanced(XQilla_INCLUDE_DIR)
 
-find_library(XQILLA_LIBRARY NAMES xqilla)
+find_library(XQilla_LIBRARY
+    NAMES "xqilla"
+          "xqillad"
+          "xqilla${XQilla_VERSION_MAJOR}${XQilla_VERSION_MINOR}"
+          "xqilla${XQilla_VERSION_MAJOR}${XQilla_VERSION_MINOR}d")
+mark_as_advanced(XQilla_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(XQilla
+    FOUND_VAR XQilla_FOUND
+    REQUIRED_VARS XQilla_LIBRARY
+                  XQilla_INCLUDE_DIR
+    FAIL_MESSAGE "Failed to find XQilla")
 
-find_package_handle_standard_args(XQILLA DEFAULT_MSG
-      XQILLA_INCLUDE_DIR XQILLA_LIBRARY)
+if (XQilla_FOUND)
+    set(XQilla_INCLUDE_DIRS ${XQilla_INCLUDE_DIR})
+    set(XQilla_LIBRARIES ${XQilla_LIBRARY})
 
-set(XQILLA_LIBRARIES ${XQILLA_LIBRARY})
-
-mark_as_advanced(XQILLA_INCLUDE_DIR XQILLA_LIBRARY)
-
-if (NOT TARGET XQilla)
-    add_library(XQilla UNKNOWN IMPORTED)
-    if (XQILLA_INCLUDE_DIR)
-        set_target_properties(XQilla PROPERTIES
-            INTERFACE_INCLUDE_DIRECTORIES "${XQILLA_INCLUDE_DIR}")
-    endif()
-    if (EXISTS "${XQILLA_LIBRARY}")
-        set_target_properties(XQilla PROPERTIES
-            IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
-            IMPORTED_LOCATION "${XQILLA_LIBRARY}")
-    endif()
-endif()
+    if (NOT TARGET XQilla::XQilla)
+        add_library(XQilla::XQilla UNKNOWN IMPORTED)
+        if (XQilla_INCLUDE_DIRS)
+            set_target_properties(XQilla::XQilla PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${XQilla_INCLUDE_DIRS}")
+        endif ()
+        if (EXISTS "${XQilla_LIBRARY}")
+            set_target_properties(XQilla::XQilla PROPERTIES
+                IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
+                IMPORTED_LOCATION "${XQilla_LIBRARY}")
+        endif ()
+    endif ()
+endif ()
