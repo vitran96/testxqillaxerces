@@ -1,7 +1,3 @@
-# Find the XQilla library
-#
-# originally taken from
-#  https://github.com/rug-compling/alpinocorpus/blob/master/cmake/FindXQilla.cmake
 
 find_path(XQilla_INCLUDE_DIR
     NAMES xqilla/xqilla-simple.hpp
@@ -10,9 +6,10 @@ mark_as_advanced(XQilla_INCLUDE_DIR)
 
 find_library(XQilla_LIBRARY
     NAMES "xqilla"
-          "xqillad"
-          "xqilla${XQilla_VERSION_MAJOR}${XQilla_VERSION_MINOR}"
-          "xqilla${XQilla_VERSION_MAJOR}${XQilla_VERSION_MINOR}d")
+          "xqilla${XQilla_MAYBE_DEBUG_SUFFIX}"
+          "xqilla${XQilla_EXPECTED_VERSION}"
+          "xqilla${XQilla_EXPECTED_VERSION}${XQilla_MAYBE_DEBUG_SUFFIX}"
+    DOC "XQilla libraries")
 mark_as_advanced(XQilla_LIBRARY)
 
 include(FindPackageHandleStandardArgs)
