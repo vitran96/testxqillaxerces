@@ -14,7 +14,6 @@ if (NOT TARGET XQilla::XQilla AND
 endif ()
 
 file(GLOB_RECURSE XQilla_BIN
-    FOLLOW_SYMLINKS
-    "${XQilla_ROOT}/lib/*xqilla*.dll" "${XQilla_ROOT}/lib/*xqilla*.so.*")
+    "${XQilla_ROOT}/lib/xqilla*.dll" "${XQilla_ROOT}/lib/libxqilla.so.*.*.*")
 
 find_package(XQilla REQUIRED)

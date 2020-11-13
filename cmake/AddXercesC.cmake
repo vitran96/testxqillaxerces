@@ -15,6 +15,6 @@ endif ()
 
 file(GLOB_RECURSE XercesC_BIN
     FOLLOW_SYMLINKS
-    "${XercesC_ROOT}/bin/*xerces-c*.dll" "${XercesC_ROOT}/lib/*xerces-c*.so.*")
+    "${XercesC_ROOT}/bin/xerces-c_*_*.dll" "${XercesC_ROOT}/lib/libxerces-c-*.*.so")
 
 find_package(XercesC ${XercesC_EXPECTED_VERSION} REQUIRED)
