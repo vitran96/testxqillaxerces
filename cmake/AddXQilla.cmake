@@ -13,7 +13,7 @@ if (NOT TARGET XQilla::XQilla AND
     set(XQilla_MAYBE_DEBUG_SUFFIX "d")
 endif ()
 
+find_package(XQilla REQUIRED)
+
 file(GLOB_RECURSE XQilla_BIN
     "${XQilla_ROOT}/lib/xqilla*.dll" "${XQilla_ROOT}/lib/libxqilla.so.*.*.*")
-
-find_package(XQilla REQUIRED)

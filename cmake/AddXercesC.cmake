@@ -13,8 +13,8 @@ if (NOT TARGET XercesC::XercesC AND
     set(XercesC_MAYBE_DEBUG_SUFFIX "D")
 endif ()
 
+find_package(XercesC ${XercesC_EXPECTED_VERSION} REQUIRED)
+
 file(GLOB_RECURSE XercesC_BIN
     FOLLOW_SYMLINKS
     "${XercesC_ROOT}/bin/xerces-c_*_*.dll" "${XercesC_ROOT}/lib/libxerces-c-*.*.so")
-
-find_package(XercesC ${XercesC_EXPECTED_VERSION} REQUIRED)
