@@ -21,6 +21,7 @@ include(AddXQilla)
 
 # Include sub-projects.
 add_subdirectory ("TestXqilla")
+add_subdirectory ("TestXercesDOMLSInputAPI")
 
 message(STATUS "  XQilla library:            ${XQilla_LIBRARIES}")
 message(STATUS "  XQilla header folder:      ${XQilla_INCLUDE_DIRS}")
