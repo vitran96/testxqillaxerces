@@ -297,22 +297,12 @@ DOMDocument* XQillaParseFile(const std::string& file)
     parser->getDomConfig()->setParameter(XMLUni::fgDOMValidateIfSchema, false);
     parser->getDomConfig()->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
 
-    // std::cout << "Finish set up parser" << std::endl;
-
     DOMLSInput* input = impl->createLSInput();
-    input->setSystemId(X(file.c_str()));
 
-    std::string path(UTF8(input->getSystemId()));
-    std::cout << path << std::endl;
-
-    input->setBaseURI(u"./");
-
-    // std::cout << "Finish set up input source" << std::endl;
+    LocalFileInputSource fileInputSource(X(file.c_str()));
+    input->setByteStream(&fileInputSource);
 
     auto document = parser->parse(input);
-    // auto document = parser->parseURI(file.c_str());
-
-    // std::cout << "Finish parsing" << std::endl;
 
     input->release();
     parser->release();
