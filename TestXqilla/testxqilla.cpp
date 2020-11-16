@@ -301,6 +301,10 @@ DOMDocument* XQillaParseFile(const std::string& file)
 
     DOMLSInput* input = impl->createLSInput();
     input->setSystemId(X(file.c_str()));
+
+    std::string path(UTF8(input->getSystemId()));
+    std::cout << path << std::endl;
+
     input->setBaseURI(u"./");
 
     // std::cout << "Finish set up input source" << std::endl;

@@ -1,4 +1,5 @@
 .vs/**
+!.vs/launch.vs.json
 
 *build*/
 *out*/

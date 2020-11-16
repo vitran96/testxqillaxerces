@@ -1,0 +1,165 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "TestXqilla.exe (bin\\TestXqilla.exe)"
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 1",
+      "args": [
+        "bookstore"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 2",
+      "args": [
+        "/bookstore"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 3",
+      "args": [
+        "/bookstore/book"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 4",
+      "args": [
+        "//title"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 5",
+      "args": [
+        "/bookstore//title"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 6",
+      "args": [
+        "/bookstore/book[1]"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 7",
+      "args": [
+        "//title[@lang='en']"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 8",
+      "args": [
+        "\"/bookstore/book[position()<2]\""
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 9",
+      "args": [
+        "//*"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 10",
+      "args": [
+        "//node()"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 11",
+      "args": [
+        "\"//title | //price\""
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 12",
+      "args": [
+        "/bookstore/book/."
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 13",
+      "args": [
+        "//book[1]/.."
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 14",
+      "args": [
+        "//a:book"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test 15",
+      "args": [
+        "//b:book"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test Performance 1",
+      "args": [
+        "//EcuVariant[@isBV='true']"
+      ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "TestXqilla.exe (bin\\TestXqilla.exe)",
+      "name": "Test Performance 2",
+      "args": [
+        "//EcuVariant[@isBV='true']/parent::*"
+      ]
+    }
+  ]
+}
