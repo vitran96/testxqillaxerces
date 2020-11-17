@@ -283,7 +283,6 @@ DOMDocumentFragment* ParseFileIntoExistingDomDocument(const std::string& file, D
     LocalFileInputSource fileInputSource(X(file.c_str()));
     input->setByteStream(&fileInputSource);
 
-    //auto document = parser->parse(input);
     parser->parseWithContext(input, fragment, DOMLSParser::ACTION_APPEND_AS_CHILDREN);
 
     input->release();
