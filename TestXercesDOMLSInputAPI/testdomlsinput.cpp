@@ -2,13 +2,23 @@
 
 #include <xercesc/dom/DOM.hpp>
 
+#include <xercesc/sax/ErrorHandler.hpp>
+
 #include <xercesc/util/TransService.hpp>
+
 #include <xercesc/parsers/XercesDOMParser.hpp>
+
+#include <xercesc/util/BinInputStream.hpp>
+
 #include <xercesc/framework/LocalFileInputSource.hpp>
+#include <xercesc/framework/MemBufInputSource.hpp>
 
 #include <xercesc/framework/StdOutFormatTarget.hpp>
 
 #include <xercesc/util/XMLUni.hpp>
+
+#include <xercesc/sax/SAXParseException.hpp>
+#include <xercesc/util/OutOfMemoryException.hpp>
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -23,7 +33,7 @@ XERCES_CPP_NAMESPACE_USE
 
 #include <chrono>
 
-#define TEST_FILE "sample2.xml"
+#define TEST_FILE "sample3.xml"
 
 long long GetTimestamp()
 {
@@ -61,15 +71,93 @@ public:
     void resetErrors() {};
 };
 
+class DOMParserErrorHandler : public DOMErrorHandler
+{
+public:
+
+    DOMParserErrorHandler() {};
+    ~DOMParserErrorHandler() {};
+
+    /** @name The error handler interface */
+    bool handleError(const DOMError& domError) override
+    {
+        // Display whatever error message passed from the serializer
+        if (domError.getSeverity() == DOMError::DOM_SEVERITY_WARNING)
+            std::cerr << "\nWarning Message: ";
+        else if (domError.getSeverity() == DOMError::DOM_SEVERITY_ERROR)
+            std::cerr << "\nError Message: ";
+        else
+            std::cerr << "\nFatal Message: ";
+
+        std::cerr << UTF8(domError.getMessage()) << std::endl;
+
+        return true;
+    }
+
+    void resetErrors() {};
+};
+
+class ParserErrorHandler : public ErrorHandler
+{
+public:
+    ParserErrorHandler() {};
+    virtual ~ParserErrorHandler() {};
+
+    std::string GetError() const
+    {
+        return _error;
+    }
+
+    std::string GetWarning() const
+    {
+        return _warning;
+    }
+
+    void warning(const SAXParseException& ex) override
+    {
+        std::string warning(UTF8(ex.getMessage()));
+        _warning = _warning + "\n" + warning;
+    }
+
+    void error(const SAXParseException& ex) override
+    {
+        std::string error(UTF8(ex.getMessage()));
+
+        auto column = std::to_string(ex.getColumnNumber());
+        auto line = std::to_string(ex.getLineNumber());
+
+        _error = _error + "\n" +
+            error + "\n" +
+            "Column: " + column + "\n" +
+            "Line: " + line + "\n";
+    }
+
+    void fatalError(const SAXParseException& ex) override
+    {
+        std::string fatal(UTF8(ex.getMessage()));
+        fatal = "The Xml file format is not well formed or encoded incorrectly: " + fatal;
+
+        throw std::runtime_error(fatal);
+    }
+
+    void resetErrors() override {}
+
+private:
+    std::string _warning;
+    std::string _error;
+};
+
 DOMDocument* ParseFile(const std::string& file);
 void PrintDOMElements(const std::list<DOMElement*>& elementsList);
 
 void PrintDOMNode(DOMNode* domNode);
 
-DOMDocument* XQillaParseFile(const std::string& file);
+DOMDocument* ParseFileWithDOMLSInput(const std::string& file);
 
 DOMDocumentFragment* ParseFileIntoExistingDomDocument(const std::string& file, DOMDocument* document);
 DOMDocumentFragment* ParseFileThanManuallyAddIntoExistingDomDocument(const std::string& file, DOMDocument* document);
+
+DOMDocument* ParseStringWithDOMLSInput(const std::string& string);
 
 DOMImplementation* GetDOMImplementation();
 
@@ -181,34 +269,48 @@ int mainDOMLSInputTest(const int argc, const char* argv[])
     int returnCode = 0;
 
     std::string xmlFile(TEST_FILE);
+    std::string xmlString = R"(<?xml version="1.0" encoding="UTF-16LE" standalone="no"?><Basket>
+
+  <Cpu1>3400g</Cpu1>
+
+  <Gpu>1650</Gpu>
+
+  <Cpu2>3600x</Cpu2>
+
+  <Gpu>1660</Gpu>
+
+</Basket>)";
 
     DOMDocument* xercesDoc;
 
     try
     {
-        long long startTime(GetTimestamp());
+        //long long startTime(GetTimestamp());
 
-        xercesDoc = ::XQillaParseFile(xmlFile);
+        //xercesDoc = ::ParseFileWithDOMLSInput(xmlFile);
 
-        std::cout << "Finish parsing" << std::endl;
+        //std::cout << "Finish parsing" << std::endl;
 
-        long long afterParsingAFile(GetTimestamp());
+        //long long afterParsingAFile(GetTimestamp());
 
-        auto fragment1 = ParseFileIntoExistingDomDocument(xmlFile, xercesDoc);
+        //auto fragment1 = ParseFileIntoExistingDomDocument(xmlFile, xercesDoc);
 
-        std::cout << "Finish parsing" << std::endl;
+        //std::cout << "Finish parsing" << std::endl;
 
-        long long afterParsingAFileIntoExistingDocument(GetTimestamp());
+        //long long afterParsingAFileIntoExistingDocument(GetTimestamp());
 
-        auto fragment2 = ParseFileThanManuallyAddIntoExistingDomDocument(xmlFile, xercesDoc);
+        //auto fragment2 = ParseFileThanManuallyAddIntoExistingDomDocument(xmlFile, xercesDoc);
 
-        std::cout << "Finish parsing" << std::endl;
+        //std::cout << "Finish parsing" << std::endl;
 
-        long long afterParsingAFileIntoExistingDocumentManually(GetTimestamp());
+        //long long afterParsingAFileIntoExistingDocumentManually(GetTimestamp());
 
-        std::cout << "Parsing time: " << (afterParsingAFile - startTime) << std::endl;
-        std::cout << "Parsing time into existing Document: " << (afterParsingAFileIntoExistingDocument - afterParsingAFile) << std::endl;
-        std::cout << "Parsing time into existing Document MANUALLY: " << (afterParsingAFileIntoExistingDocumentManually - afterParsingAFileIntoExistingDocument) << std::endl;
+        //std::cout << "Parsing time: " << (afterParsingAFile - startTime) << std::endl;
+        //std::cout << "Parsing time into existing Document: " << (afterParsingAFileIntoExistingDocument - afterParsingAFile) << std::endl;
+        //std::cout << "Parsing time into existing Document MANUALLY: " << (afterParsingAFileIntoExistingDocumentManually - afterParsingAFileIntoExistingDocument) << std::endl;
+
+        xercesDoc = ParseStringWithDOMLSInput(xmlString);
+        PrintDOMNode(xercesDoc);
     }
     catch (const std::exception& e)
     {
@@ -247,7 +349,7 @@ DOMDocument* ParseFile(const std::string& file)
     return parser.adoptDocument();
 }
 
-DOMDocument* XQillaParseFile(const std::string& file)
+DOMDocument* ParseFileWithDOMLSInput(const std::string& file)
 {
     DOMImplementation* impl = ::GetDOMImplementation();
     DOMLSParser* parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
@@ -259,6 +361,39 @@ DOMDocument* XQillaParseFile(const std::string& file)
 
     LocalFileInputSource fileInputSource(X(file.c_str()));
     input->setByteStream(&fileInputSource);
+
+    auto document = parser->parse(input);
+
+    input->release();
+    parser->release();
+
+    return document;
+}
+
+DOMDocument* ParseStringWithDOMLSInput(const std::string& string)
+{
+    DOMParserErrorHandler errorHandler;
+
+    DOMImplementation* impl = ::GetDOMImplementation();
+    DOMLSParser* parser = impl->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+
+    auto config = parser->getDomConfig();
+    config->setParameter(XMLUni::fgDOMNamespaces, true);
+    config->setParameter(XMLUni::fgDOMValidateIfSchema, false);
+    config->setParameter(XMLUni::fgXercesUserAdoptsDOMDocument, true);
+    config->setParameter(XMLUni::fgDOMElementContentWhitespace, false);
+
+    //config->setParameter(XMLUni::fgDOMErrorHandler, &errorHandler);
+
+    DOMLSInput* input = impl->createLSInput();
+
+    MemBufInputSource memInputSource(
+        reinterpret_cast<const XMLByte*>(string.c_str()),
+        string.size(),
+        "Parse From String",
+        false
+    );
+    input->setByteStream(&memInputSource);
 
     auto document = parser->parse(input);
 
@@ -282,6 +417,14 @@ DOMDocumentFragment* ParseFileIntoExistingDomDocument(const std::string& file, D
 
     LocalFileInputSource fileInputSource(X(file.c_str()));
     input->setByteStream(&fileInputSource);
+
+    //auto tempByteStream = fileInputSource.makeStream();
+
+    //XMLByte buffer[100];
+    //tempByteStream->readBytes(buffer, sizeof(buffer));
+    //std::cout << "???: " << UTF8(u"") << std::endl;
+    //std::string temp(buffer);
+    //std::cout << "???: " << buffer << std::endl;
 
     //auto document = parser->parse(input);
     parser->parseWithContext(input, fragment, DOMLSParser::ACTION_APPEND_AS_CHILDREN);

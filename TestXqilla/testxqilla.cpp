@@ -4,6 +4,9 @@
 
 #include <xercesc/util/TransService.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
+
+#include <xercesc/util/BinInputStream.hpp>
+
 #include <xercesc/framework/LocalFileInputSource.hpp>
 
 #include <xercesc/framework/StdOutFormatTarget.hpp>
@@ -22,7 +25,7 @@ XERCES_CPP_NAMESPACE_USE
 
 #include <chrono>
 
-#define TEST_FILE "sample.xml"
+#define TEST_FILE "sample2.xml"
 
 long long GetTimestamp()
 {
@@ -209,7 +212,8 @@ int mainXpathTest(const int argc, const char* argv[])
 
         long long startTime(GetTimestamp());
 
-        xercesDoc = ::XQillaParseFile(xmlFile);
+        xercesDoc = ::ParseFile(xmlFile);
+        //xercesDoc = ::XQillaParseFile(xmlFile);
 
         std::cout << "Finish parsing" << std::endl;
 
@@ -284,6 +288,9 @@ DOMDocument* ParseFile(const std::string& file)
     XercesDOMParser parser;
     parser.setValidationScheme(XercesDOMParser::Val_Auto);
     parser.setDoNamespaces(true);
+
+    parser.useImplementation(XPATH_FEATURES);
+
     parser.parse(file.c_str());
 
     return parser.adoptDocument();
