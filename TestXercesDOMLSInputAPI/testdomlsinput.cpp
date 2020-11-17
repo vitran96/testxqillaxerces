@@ -26,7 +26,7 @@ XERCES_CPP_NAMESPACE_USE
 
 #include <iostream>
 #include <string>
-include <fstream>
+#include <fstream>
 #include <sstream>
 #include <stdexcept>
 #include <list>
